@@ -112,6 +112,10 @@ public abstract class ModbusResponse extends ModbusMessageImpl {
             case Modbus.READ_MEI:
                 response = new ReadMEIResponse();
                 break;
+            case Modbus.READ_WAVIN:
+                response = new ReadWavinRegistersResponse();
+                break;
+
             default:
                 if ((functionCode & 0x80) != 0) {
                     response = new ExceptionResponse(functionCode);

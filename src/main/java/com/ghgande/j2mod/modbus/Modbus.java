@@ -153,6 +153,8 @@ public interface Modbus {
     int READ_MEI = 43;
     int READ_MEI_VENDOR_INFO = 14;
 
+    int READ_WAVIN = 0x43;
+
     /**
      * Defines the byte representation of the coil state <b>on</b>.
      */

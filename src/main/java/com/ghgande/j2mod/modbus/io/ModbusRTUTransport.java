@@ -126,8 +126,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                         throw new IOException(String.format("getResponse unrecognised function code [%s]", function));
                 }
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new IOException("getResponse serial port exception");
         }
     }
@@ -221,19 +220,25 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                         // now get the 2 CRC bytes
                         readRequestData(0, out);
                         break;
+                    case 67:
+                        // read the subcode. We only support 0x0e.
+                        //int fc = readByte();
+                        int cnt2 = readByte();
+                        out.write(cnt2);
+                        readRequestData(cnt2, out);
+                        break;
+
 
                     default:
                         throw new IOException(String.format("getResponse unrecognised function code [%s]", function));
 
                 }
-            }
-            else {
+            } else {
                 // read the exception code, plus two CRC bytes.
                 readRequestData(1, out);
 
             }
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             throw new IOException(String.format("getResponse serial port exception - %s", e.getMessage()));
         }
     }
@@ -273,8 +278,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                 lastRequest = new byte[len];
                 System.arraycopy(byteOutputStream.getBuffer(), 0, lastRequest, 0, len);
             }
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             throw new ModbusIOException("I/O failed to write");
         }
     }
@@ -336,8 +340,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
 
                         return request;
 
-                    }
-                    else {
+                    } else {
                         // This message is not for us, read and wait for the 3.5t delay
 
                         // Wait for max 1.5t for data to be available
@@ -356,8 +359,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                                 while (availableBytes() > 0) {
                                     byteInputOutputStream.writeByte(readByte());
                                 }
-                            }
-                            else {
+                            } else {
                                 // Transition to wait for the 3.5t interval
                                 break;
                             }
@@ -373,8 +375,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Discarding message (More than 1.5t between characters!) - {}", ModbusUtil.toHex(byteInputOutputStream.getBuffer(), 0, byteInputOutputStream.size()));
                             }
-                        }
-                        else {
+                        } else {
                             // This message is complete
                             if (logger.isDebugEnabled()) {
                                 logger.debug("Read message not meant for us: {}", ModbusUtil.toHex(byteInputOutputStream.getBuffer(), 0, byteInputOutputStream.size()));
@@ -386,8 +387,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
 
             // We will never get here
             return null;
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             // An exception mostly means there is no request. The master should
             // retry the request.
 
@@ -403,7 +403,6 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
      * readResponse - Read the bytes for the response from the slave.
      *
      * @return a <tt>ModbusRespose</tt>
-     *
      * @throws com.ghgande.j2mod.modbus.ModbusIOException If the response cannot be read from the socket/port
      */
     @Override
@@ -450,8 +449,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                             logger.debug("CRC should be {}, {}", crc[0], crc[1]);
                             throw new IOException("CRC Error in received frame: " + dlength + " bytes: " + ModbusUtil.toHex(byteInputStream.getBuffer(), 0, dlength));
                         }
-                    }
-                    else {
+                    } else {
                         throw new IOException("Error reading response");
                     }
 
@@ -462,8 +460,7 @@ public class ModbusRTUTransport extends ModbusSerialTransport {
                 }
             } while (!done);
             return response;
-        }
-        catch (IOException ex) {
+        } catch (IOException ex) {
             // FIXME: This printout is wrong when reading response from other slave
             throw new ModbusIOException("I/O exception - failed to read response for request [%s] - %s", ModbusUtil.toHex(lastRequest), ex.getMessage());
         }

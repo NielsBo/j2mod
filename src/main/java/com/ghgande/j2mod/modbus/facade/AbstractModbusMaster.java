@@ -482,7 +482,7 @@ public abstract class AbstractModbusMaster {
      *
      * @throws ModbusException If response is null
      */
-    private ModbusResponse getAndCheckResponse() throws ModbusException {
+    protected ModbusResponse getAndCheckResponse() throws ModbusException {
         ModbusResponse res = transaction.getResponse();
         if (res == null) {
             throw new ModbusException("No response");
@@ -495,7 +495,7 @@ public abstract class AbstractModbusMaster {
      *
      * @throws ModbusException If transaction is null
      */
-    private void checkTransaction() throws ModbusException {
+    protected void checkTransaction() throws ModbusException {
         if (transaction == null) {
             throw new ModbusException("No transaction created, probably not connected");
         }
